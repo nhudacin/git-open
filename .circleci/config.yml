@@ -19,10 +19,9 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            apt-get update
-            apt-get install -y --no-install-recommends \
-                apt-utils \
-                ca-certificates \
+            sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+                apt-utils
+                ca-certificates
                 curl \
                 apt-transport-https \
                 locales \
