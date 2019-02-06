@@ -30,4 +30,4 @@ jobs:
         - pwsh -c 'Install-Module Pester -Scope CurrentUser'
 
 script:
-  - pwsh -c 'Import-Module Pester; Invoke-Pester -Script test -EnableExit'
+  - pwsh -c 'Import-Module Pester; Invoke-Pester -Script src -EnableExit'
