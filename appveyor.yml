@@ -22,7 +22,7 @@ test_script:
   - ps: |
       $testResultsFile = Join-Path $Env:APPVEYOR_BUILD_FOLDER TestResults.xml
       $pesterParams = @{
-          Script       = "$Env:APPVEYOR_BUILD_FOLDER\test"
+          Script       = "$Env:APPVEYOR_BUILD_FOLDER\src"
           OutputFile   = $testResultsFile
           OutputFormat = "NUnitXml"
           PassThru     = $true
