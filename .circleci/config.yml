@@ -20,8 +20,8 @@ jobs:
           name: install dependencies
           command: |
             sudo apt-get update && sudo apt-get install -y --no-install-recommends \
-                apt-utils
-                ca-certificates
+                apt-utils \
+                ca-certificates \
                 curl \
                 apt-transport-https \
                 locales \
