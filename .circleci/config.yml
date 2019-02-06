@@ -19,21 +19,23 @@ jobs:
       - run:
           name: install dependencies
           command: |
-            curl -o packages-microsoft-prod.deb https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb
-            sudo dpkg -i packages-microsoft-prod.deb
-
             sudo apt-get update && sudo apt-get install -y --no-install-recommends \
                 apt-utils \
                 ca-certificates \
                 curl \
                 apt-transport-https \
                 locales \
-                git \
-                powershell
+                git
+
+            curl -o packages-microsoft-prod.deb https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb
+
+            sudo dpkg -i packages-microsoft-prod.deb
+
+            sudo apt-get update && sudo apt-get install -y powershell
 
       - run:
           name: install powershell
           command: |
-            echo "run tests"
-            
+            echo "hello"
+
 
