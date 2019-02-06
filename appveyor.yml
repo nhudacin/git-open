@@ -43,5 +43,5 @@ test_script:
           Write-Host 'COVERALLS_KEY not set! (Expected on PR builds.)'
           return;
       }
-      $coverageResult = Format-Coverage -Include (gci ..\src\* -include *.ps1,*.psm1) -CoverallsApiToken $ENV:COVERALLS_KEY -RootFolder ../ -BranchName $ENV:APPVEYOR_REPO_BRANCH
+      $coverageResult = Format-Coverage -Include (gci src\* -include *.ps1,*.psm1) -CoverallsApiToken $ENV:COVERALLS_KEY -RootFolder src/ -BranchName $ENV:APPVEYOR_REPO_BRANCH
       Publish-Coverage -Coverage $coverageResult
