@@ -4,7 +4,7 @@
     RootModule = 'git-open.psm1'
     
     # Version number of this module.
-    ModuleVersion = '0.0.0.1'
+    ModuleVersion = '0.0.1'
     
     # ID used to uniquely identify this module
     GUID = 'd90bd9b8-8e30-4931-8297-da0cb1a3fffc'
@@ -23,7 +23,7 @@
     
     # Functions to export from this module
     FunctionsToExport = @(
-        Invoke-GitOpen
+        'Invoke-GitOpen'
     )
     
     # Cmdlets to export from this module
@@ -33,23 +33,6 @@
     VariablesToExport = @()
     
     # Aliases to export from this module
-    AliasesToExport = @()
-    
-    # Private data to pass to the module specified in RootModule/ModuleToProcess.
-    # This may also contain a PSData hashtable with additional module metadata used by PowerShell.
-    PrivateData = @{
-        PSData = @{
-            # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @()
-    
-            # A URL to the license for this module.
-            LicenseUri = 'https://github.com/nhudacin/git-open/blob/master/LICENSE'
-    
-            # A URL to the main website for this project.
-            ProjectUri = 'https://github.com/nhudacin/git-open'
-    
-            # ReleaseNotes of this module
-            ReleaseNotes = 'https://github.com/nhudacin/git-open/blob/master/CHANGELOG.md'
-        }
-    }
+    AliasesToExport = @()   
+   
 }
