@@ -1,5 +1,52 @@
 <#
+.SYNOPSIS
+    Opens up a browser window to the git repository's remote
 
+.DESCRIPTION
+    When executed from in a git repository, will open up a web browser to the 
+    repository's remote configuration. This allows for easy and seamless transition
+    between local work and remote work - managing pull requests, issues, and general 
+    code management stuff.
+
+.PARAMETER PR
+    Switch to open up the remote config pull request screen
+
+.PARAMETER CustomRepoTypes
+    This array allows for some customization. In a lot of enterprise settings, a
+    custom URL is used for the source control management system. An array of 
+    repo types that can be used to find & replace values in the .gitconfig. 
+
+    Each object in the array should include these properties: 
+      Name: The name of the custom config
+      Type: "BitBucket" or "Github"
+      Find: String to look for in the .gitconfig to determine whether repo is this type
+      Replace: *OPTIONAL* when finding the string, optional ability to replace 
+
+    Example:
+      @{
+        Name = 'BitBucketCustom'
+        Type = 'BitBucket'
+        Find = 'ssh://git@git.companyname.com:7999'
+        Replace = 'https://git.companyname.com'
+      }
+
+.EXAMPLE
+    PS C:\SomeGitRepo> Invoke-GitOpen
+    Will open up a web browser to the "SomeGitRepo" remote.
+
+
+.EXAMPLE
+    PS C:\SomeGitRepo> $companyRepoType = @{
+        Name = 'BitBucketCustom'
+        Type = 'BitBucket'
+        Find = 'ssh://git@git.companyname.com:7999'
+        Replace = 'https://git.companyname.com'
+      }
+    PS C:\SomeGitRepo> Invoke-GitOpen -CustomRepoTypes @($companyRepoType)
+
+    My company uses SSH for git operations. This configuration will find the 
+    ssh configuration for my company repositories and then replace that ssh remote
+    configuration with the https remote URL.
 #>
 function Invoke-GitOpen {
   [CmdletBinding()]
