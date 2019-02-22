@@ -77,6 +77,15 @@ function git-open {
 Which allows me to execute `git-open` in any git repository, whether public & open-source GitHub or any company management system. 
 
 
+## Publish
+
+This is just a reminder for me publishing the module
+
+```powershell
+./build/scripts/package.ps1
+Publish-Module -Path .ignore/build/git-open -NuGetApiKey $env:POWERSHELL_GALLERY_KEY
+```
+
 [tv-master-img]:   https://travis-ci.org/nhudacin/git-open.svg?branch=master
 [tv-master-site]:  https://travis-ci.org/nhudacin/git-open
 [cc-master-img]:   https://coveralls.io/repos/github/nhudacin/git-open/badge.svg?branch=master
