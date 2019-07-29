@@ -42,6 +42,9 @@ repo types for those working in multiple systems.
       Type = 'BitBucket'
       Find = 'ssh://git@git.companyname.com:1234'
       Replace = 'https://git.companyname.com'
+      UrlBase         = 'https://git.companyname.com'
+      BrowseUrlFormat = '$urlBase/projects/$projectName/repos/$repoName/browse?at=refs%2Fheads%2F$branchName'
+      PRUrlFormat     = '$urlBase/projects/$projectName/repos/$repoName/pull-requests'
     }
   )
   
@@ -66,6 +69,9 @@ function git-open {
       Type = 'BitBucket'
       Find = 'ssh://git@git.companyname.com:1234'
       Replace = 'https://git.companyname.com'
+      UrlBase         = 'https://git.companyname.com'
+      BrowseUrlFormat = '$urlBase/projects/$projectName/repos/$repoName/browse?at=refs%2Fheads%2F$branchName'
+      PRUrlFormat     = '$urlBase/projects/$projectName/repos/$repoName/pull-requests'
     }
   )
   
