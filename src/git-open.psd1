@@ -4,7 +4,7 @@
     RootModule = 'git-open.psm1'
     
     # Version number of this module.
-    ModuleVersion = '0.1.0'
+    ModuleVersion = '0.2.0'
     
     # ID used to uniquely identify this module
     GUID = 'd90bd9b8-8e30-4931-8297-da0cb1a3fffc'

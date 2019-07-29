@@ -49,18 +49,40 @@ InModuleScope git-open {
       )
 
       It 'Opens up BitBucket' {
-        Invoke-GitOpen -CustomRepoTypes $customRepoTypes
+        Invoke-GitOpen -CustomRepoTypes $customRepoTypes -WarningAction SilentlyContinue
         Assert-MockCalled Start-Process -ParameterFilter { $FilePath -match 'https://git.companyname.com/projects/bbproject/repos/bbrepo' } -Exactly 1 -Scope It
       }
 
       It 'Correctly opens up the pull-requests screen' {
-        $url = Invoke-GitOpen -CustomRepoTypes $customRepoTypes -PR
+        $url = Invoke-GitOpen -CustomRepoTypes $customRepoTypes -PR -WarningAction SilentlyContinue
         $url | Should Be 'https://git.companyname.com/projects/bbproject/repos/bbrepo/pull-requests'
       }
 
       It 'Parses the current branch and adds it to the URL' {
-        $url = Invoke-GitOpen -CustomRepoTypes $customRepoTypes
+        $url = Invoke-GitOpen -CustomRepoTypes $customRepoTypes -WarningAction SilentlyContinue
         $url | Should Be 'https://git.companyname.com/projects/bbproject/repos/bbrepo/browse?at=refs%2Fheads%2Farchitecture-diagram'
+      }
+    }
+
+    Context "Azure Devops" {
+      $azureConfig = Get-Content $(Join-Path $repoRoot 'test/fixtures/gitconfig.azuredevops.txt') -Raw
+      Setup -File 'ado/.git/config' -Content $azureConfig
+      Setup -File 'ado/.git/HEAD' -Content 'ref: refs/heads/architecture-diagram'
+      Set-Location "$TestDrive/ado"
+
+      It 'Opens up Azure Devops' {
+        Invoke-GitOpen
+        Assert-MockCalled Start-Process -ParameterFilter { $FilePath -match 'https://dev.azure.com/organization/project/_git/repo' } -Exactly 1 -Scope It
+      }
+
+      It 'Correctly opens up the pull-requests screen' {
+        $url = Invoke-GitOpen -PR
+        $url | Should Be 'https://dev.azure.com/organization/project/_git/repo/pullrequests'
+      }
+
+      It 'Parses the current branch and adds it to the URL' {
+        $url = Invoke-GitOpen
+        $url| Should Be 'https://dev.azure.com/organization/project/_git/repo?version=GBarchitecture-diagram'
       }
     }
 

@@ -21,13 +21,19 @@
       Type: "BitBucket" or "Github"
       Find: String to look for in the .gitconfig to determine whether repo is this type
       Replace: *OPTIONAL* when finding the string, optional ability to replace 
+      UrlBase: The start of the URL for your git config. Example: "https://dev.azure.com"
+      BrowseUrlFormat: The format of the browse URL. This varies by source control type
+      PRUrlFormat: The format of the PR URL. This varies by source control type
 
     Example:
       @{
-        Name = 'BitBucketCustom'
-        Type = 'BitBucket'
-        Find = 'ssh://git@git.companyname.com:7999'
-        Replace = 'https://git.companyname.com'
+        Name            = 'BitBucketCustom'
+        Type            = 'BitBucket'
+        Find            = 'ssh://git@git.companyname.com:7999'
+        Replace         = 'https://git.companyname.com'
+        UrlBase         = 'https://git.companyname.com'
+        BrowseUrlFormat = '$urlBase/projects/$projectName/repos/$repoName/browse?at=refs%2Fheads%2F$branchName'
+        PRUrlFormat     = '$urlBase/projects/$projectName/repos/$repoName/pull-requests'
       }
 
 .EXAMPLE
@@ -41,6 +47,9 @@
         Type = 'BitBucket'
         Find = 'ssh://git@git.companyname.com:7999'
         Replace = 'https://git.companyname.com'
+        UrlBase         = 'https://git.companyname.com'
+        BrowseUrlFormat = '$urlBase/projects/$projectName/repos/$repoName/browse?at=refs%2Fheads%2F$branchName'
+        PRUrlFormat     = '$urlBase/projects/$projectName/repos/$repoName/pull-requests'
       }
     PS C:\SomeGitRepo> Invoke-GitOpen -CustomRepoTypes @($companyRepoType)
 
@@ -59,51 +68,11 @@ function Invoke-GitOpen {
     [Array]$CustomRepoTypes
   )
 
-  # TO DO
-  # Make this more dynamic. We should be able to find this
-  # if the shell is in a repo
-  $configPath = './.git/config'
+  $configPath = Find-GitConfigPath
 
-  <#
-    DEBUG
-    $urlRaw = 'url = ssh://git@git.companyname.com:7999/bbproject/bbrepo.git'
-    $urlRaw = 'url = https://github.com/nhudacin/git-open.git'
-  #>
-  
-  # pull the url out of the .gitconfig, clean it up a little
-  $urlRaw = Get-Content -Path $configPath | Where-Object { $_ -match 'url =' } | Select-Object -First 1
-  if ($urlRaw -match '(?<=url = )(.*)(?=\.git)' ) {
-    $sanitizedUrl = $Matches[1]
-  }
+  $sanitizedUrl = Get-UrlFromGitConfig -ConfigPath $configPath
 
-  # gotta stop here if we didn't snag a url
-  if (-not $sanitizedUrl) {
-    throw 'Couldn''t get a url from the git config'
-  }
-
-  # get the repo name 
-  # sanitizedUrl = ssh://git@git.companyname.com:7999/bbproject/bbrepo
-  # --------------------------------------------------------------^
-  $repoName =  Split-Path -Leaf $sanitizedUrl
-  
-  # we need the Github Organization || BitBucket Project
-  # sanitizedUrl = ssh://git@git.companyname.com:7999/bbproject/bbrepo
-  # ------------------------------------------------------^
-  $repoParent = Split-Path -Leaf $(Split-Path -Parent $sanitizedUrl)
-
-  <#
-    TO DO: Move this hostname section to it's own function
-
-    The Find & Replace functionality inside $customRepoTypes must be
-    run in oder to find the correct hostname/url
-
-    $sanitizedURL can be changed during this process!
-
-    At the end of this block --> we should also know the $repoType
-    in order to construct the url query
-  #>
-
-  # get the host name
+  # get the $urlBase 
   # take into consideration the requirement to support custom urls
   [array]$repoTypes = Get-DefaultRepoTypes
   
@@ -114,9 +83,11 @@ function Invoke-GitOpen {
     }
   }
 
-  # find the url type & run any customizations
+  # find the repo type by comparing the URL in the
+  # gitconfig with default & custom URL
   foreach($repoType in $repoTypes) {
     if ($sanitizedUrl.Contains($repoType.Find)) {
+      # run any customizations with config.find & config.replace
       if ($repoType.Replace) {
         $sanitizedUrl = $sanitizedUrl.Replace($repoType.Find,$repoType.Replace)
       }
@@ -127,39 +98,55 @@ function Invoke-GitOpen {
     $repoType = $null
   }
 
-  # FINALLY - get the repoUrlBase
-  $repoUrlBase = $sanitizedUrl.Remove($sanitizedUrl.IndexOf("/$repoParent/$repoName")).TrimEnd('/')
+  # get the project/org/repo values
+  
+  # get the repo name from the last piece of the sanitizedUrl
+  # sanitizedUrl = ssh://git@git.companyname.com:7999/bbproject/bbrepo
+  # --------------------------------------------------------------^
+  $repoName =  Split-Path -Leaf $sanitizedUrl
+  
+  # if this is Azure Devops or Github, we need to get the organization
+  if ($repoType.Type -eq 'GitHub') {
+    $orgName = Split-Path -Leaf $(Split-Path -Parent $sanitizedUrl)
+  }
 
-  # now that we know all of the parts, it's time to re-assemble them depending on the
-  # repo type. 
-  $formattedUrlBase = switch($repoType.Type) {
-    'BitBucket' { 
-      "$repoUrlBase/projects/$repoParent/repos/$repoName"
-    }
-    default {
-      "$repoUrlBase/$repoParent/$repoName"
-    }
+  if ($repoType.Type -eq 'AzureDevops') {    
+    $orgName = Split-Path -Leaf $(Split-Path -Parent $( Split-Path -Parent $(Split-Path -Parent $sanitizedUrl)))
+    $projectName = Split-Path -Leaf $( Split-Path -Parent $(Split-Path -Parent $sanitizedUrl))
+  }
+
+  if ($repoType.Type -eq 'BitBucket') {
+    $projectName = Split-Path -Leaf $(Split-Path -Parent $sanitizedUrl)
+  }
+
+  if ($repoType.UrlBase) {
+    $urlBase = $repoType.UrlBase
+  }
+  else {
+    # legacy code
+    Write-Warning "Please use the new property UrlBase in your custom repo type config. This fallback will be removed in future versions."
+    $urlBase = $sanitizedUrl.Remove($sanitizedUrl.IndexOf("/$projectName/$repoName")).TrimEnd('/')
   }
   
-  # PR is easy! no more processing needed
-  if ($PR) {    
-    # stupid var name - I've been burned in posh using "special" variable names like $args
-    $startArgz = switch($repoType.Type) {
-      'BitBucket' {
-        "$formattedUrlBase/pull-requests"
-      }
-      default {
-        "$formattedUrlBase/pulls"
+  # TO DO:
+  # switch statement
+  # add issues $startAgz
+  if ($PR) {
+    if ($repoType.PRUrlFormat) {
+      $PRUrlFormat = $repoType.PRUrlFormat
+    }
+    else {
+      Write-Warning "Please use the new property PRUrlFormat in your custom repo type config. This fallback will be removed in future versions."
+
+      $PRUrlFormat = switch ($repoType.Type) {
+        'Bitbucket' { '$urlBase/projects/$projectName/repos/$repoName/pull-requests' }
+        default { '$urlBase/$orgName/$repoName/pulls' }
+      
       }
     }
+    $startArgz = $ExecutionContext.InvokeCommand.ExpandString($PRUrlFormat)    
   }
-
-  # TO DO:
-  # add issues $startAgz
-
-  # if we don't have the args set then we have a little more digging to do
-  # get the branch and open up to the branch tree
-  if (-not $startArgz) {
+  else {
     # get the ref (current branch)
     <#
     DEBUG
@@ -172,15 +159,20 @@ function Invoke-GitOpen {
     #
     # grab the branch (end)
     $branchName = $ref.Substring($ref.LastIndexOf('/') + 1)
-    
-    $startArgz = switch($repoType.Type) {
-      'BitBucket' {
-        "$formattedUrlBase/browse?at=refs%2Fheads%2F$branchName"
-      }
-      default {
-        "$formattedUrlBase/tree/$branchName"
+
+    if ($repoType.BrowseUrlFormat) {
+      $browseUrlFormat = $repoType.BrowseUrlFormat
+    }
+    else {
+      Write-Warning "Please use the new property BrowseUrlFormat in your custom repo type config. This fallback will be removed in future versions."
+
+      $browseUrlFormat = switch ($repoType.Type) {
+        'Bitbucket' { '$urlBase/projects/$projectName/repos/$repoName/browse?at=refs%2Fheads%2F$branchName' }
+        default { '$urlBase/$orgName/$repoName/tree/$branchName' }
       }
     }
+
+    $startArgz = $ExecutionContext.InvokeCommand.ExpandString($browseUrlFormat)
   }
 
   # open 'er up!
