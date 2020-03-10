@@ -13,3 +13,4 @@ if ($MyInvocation.MyCommand.Path) {
         ForEach-Object { . $_.ProviderPath }
 
 Export-ModuleMember Invoke-GitOpen
+New-Alias -Name 'git-open' -Value Invoke-GitOpen
