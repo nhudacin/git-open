@@ -12,9 +12,10 @@ InModuleScope git-open {
       Setup -File '.git/config' -Content "Hello Ruby"
       
       Set-Location $TestDrive
+      $expectedResult = Join-Path $TestDrive '.git\config'
 
       It "Finds the config path from the repo root" {
-        Find-GitConfigPath | Should Be "$TestDrive\.git\config"
+        Find-GitConfigPath | Should Be $expectedResult
       }
 
       It "Throws an error when the git config file could not be found" {
@@ -28,9 +29,10 @@ InModuleScope git-open {
       Setup -Dir 'tests/unit/pester'
 
       Set-Location "$TestDrive/tests/unit/pester"
+      $expectedResult = Join-Path $TestDrive '.git\config'
 
       It "Finds the git config uproot from the current directory" {
-        Find-GitConfigPath | Should Be "$TestDrive\.git\config"
+        Find-GitConfigPath | Should Be $expectedResult
       }
     }
 

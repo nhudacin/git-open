@@ -33,7 +33,9 @@
     VariablesToExport = @()
     
     # Aliases to export from this module
-    AliasesToExport = @()
+    AliasesToExport = @(
+        'gitopen'
+    )
 
     PrivateData = @{
         PSData = @{

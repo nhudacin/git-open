@@ -11,6 +11,10 @@ UI.
 
 **EXAMPLE**
 
+```powershell
+cd to/any/git/repo
+gitopen
+```
 
 See the **Customization** section if you work with internal/enterprise repositories.
 

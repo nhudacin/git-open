@@ -59,6 +59,7 @@
 #>
 function Invoke-GitOpen {
   [CmdletBinding()]
+  [Alias('gitopen')]
   param(
     # open the pull request page
     [Parameter()]
