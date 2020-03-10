@@ -12,4 +12,5 @@ if ($MyInvocation.MyCommand.Path) {
       Where-Object { -not ($_.ProviderPath.ToLower().Contains('.tests.')) } |
         ForEach-Object { . $_.ProviderPath }
 
-Export-ModuleMember Invoke-GitOpen
+New-Alias -Name gitopen -Value Invoke-GitOpen -Force -ErrorAction SilentlyContinue
+Export-ModuleMember -Function Invoke-GitOpen -Alias gitopen

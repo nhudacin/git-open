@@ -11,6 +11,10 @@ UI.
 
 **EXAMPLE**
 
+```powershell
+cd to/any/git/repo
+gitopen
+```
 
 See the **Customization** section if you work with internal/enterprise repositories.
 
@@ -25,7 +29,11 @@ See the **Customization** section if you work with internal/enterprise repositor
 
 ## Installation
 
-Will update this as soon as it's been published to the Powershell Gallery!
+This module is available on the [Powershell Gallery](https://www.powershellgallery.com/packages/git-open/0.2.0)
+
+```posh
+Install-Module git-open
+```
 
 ## Customization
 
