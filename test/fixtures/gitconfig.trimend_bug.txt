@@ -1,0 +1,13 @@
+[core]
+  repositoryformatversion = 0
+  filemode = false
+  bare = false
+  logallrefupdates = true
+  ignorecase = true
+[remote "origin"]
+  # THIS IS THE DIFFERENCE! Fixing bug with trimEnd where it strips the g off the reponame
+  url = https://github.com/nhudacin/hellog.git
+  fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "master"]
+  remote = origin
+  merge = refs/heads/master
