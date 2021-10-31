@@ -20,7 +20,7 @@ function Get-UrlFromGitConfig {
     $sanitizedUrl = $sanitizedUrl.Trim()
 
     if ($sanitizedUrl.EndsWith('.git')) {
-      $sanitizedUrl = $sanitizedUrl.TrimEnd('.git')
+      $sanitizedUrl = $sanitizedUrl.Replace('.git','')
     }
   }
 

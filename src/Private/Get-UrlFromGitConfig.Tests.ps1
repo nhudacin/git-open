@@ -19,5 +19,10 @@ InModuleScope git-open {
     It 'Parses the URL from an Azure Devops config file' {
       Get-UrlFromGitConfig -ConfigPath $(Join-Path $repoRoot 'test/fixtures/gitconfig.azuredevops.txt') | Should be 'https://organization@dev.azure.com/organization/project/_git/repo'
     }
+
+    It 'Does not strip off the trailing g in a repo name' {
+      Get-UrlFromGitConfig -ConfigPath $(Join-Path $repoRoot 'test/fixtures/gitconfig.trimend_bug.txt') | Should be 'https://github.com/nhudacin/hellog'
+    }
+
   }
 }
